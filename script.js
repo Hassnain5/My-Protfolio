@@ -24,12 +24,7 @@ document.querySelectorAll('.nav-links a').forEach(link => {
 });
 
 // Contact form (frontend-only) alert
-const contactForm = document.getElementById('contactForm');
-contactForm.addEventListener('submit', function(e) {
-  e.preventDefault();
-  alert('Thank you for reaching out! I will get back to you soon.');
-  contactForm.reset();
-});
+
 
 
 function openCertificate(src) {
@@ -48,3 +43,47 @@ window.onclick = function(event) {
     modal.style.display = "none";
   }
 };
+
+
+
+// Contact form with EmailJS + Toast Notification
+const contactForm = document.getElementById('contactForm');
+
+function showToast(message, isSuccess = true) {
+  let toast = document.createElement("div");
+  toast.className = "toast";
+  toast.style.backgroundColor = isSuccess ? "#16a34a" : "#dc2626"; // green or red
+  toast.innerText = message;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.classList.add("show"), 100);
+  setTimeout(() => {
+    toast.classList.remove("show");
+    setTimeout(() => toast.remove(), 500);
+  }, 3000);
+}
+
+contactForm.addEventListener('submit', function(e) {
+  e.preventDefault();
+
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const message = document.getElementById('message').value.trim();
+
+  if (!name || !email || !message) {
+    showToast("Please fill in all fields", false);
+    return;
+  }
+
+  emailjs.send("service_kjbud9g", "template_qz69o8i", {
+    name: name,
+    email: email,
+    message: message
+  })
+  .then(function() {
+      showToast("✅ Message sent successfully!");
+      contactForm.reset();
+  }, function(error) {
+      console.error('❌ FAILED...', error);
+      showToast("❌ Failed to send. Try again later.", false);
+  });
+});
